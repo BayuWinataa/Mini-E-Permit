@@ -1,36 +1,112 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+This repository contains the e-permit Next.js application (frontend + API) and Prisma schema/migrations.
 
-## Getting Started
+**Tujuan dokumen**: Instruksi lengkap untuk men-setup lingkungan development, menjalankan migrasi, men-seed database, dan akun tes.
 
-First, run the development server:
+**Prasyarat**
+
+- Node.js 18+ dan npm/pnpm/yarn
+- PostgreSQL (lokal atau via Docker)
+- Git (opsional)
+
+**Variabel environment yang wajib**
+Buat file `.env` di root proyek berisi paling tidak:
+
+- `DATABASE_URL` — connection string Postgres, format:
+  `postgresql://USER:PASSWORD@HOST:PORT/DATABASE`
+- `AUTH_SECRET` — secret untuk menandatangani JWT (contoh: 64 hex chars)
+
+Variabel opsional untuk menyesuaikan kata sandi akun seed:
+
+- `SEED_ADMIN_PASSWORD` — (default: `admin1234`)
+- `SEED_USER_PASSWORD` — (default: `user1234`)
+
+Contoh `.env` minimal:
+
+```
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/e_permit
+AUTH_SECRET=your_generated_secret_here
+SEED_ADMIN_PASSWORD=admin1234
+SEED_USER_PASSWORD=user1234
+NODE_ENV=development
+```
+
+**Instal dependency**
+
+1. Install dependency:
+
+```bash
+npm install
+# atau pnpm install
+# atau yarn
+```
+
+2. Generate Prisma Client (wajib sebelum seed dan sebelum menjalankan aplikasi karena client di-output ke `app/generated/prisma`):
+
+```bash
+npx prisma generate
+```
+
+**Menerapkan migrasi (database sudah kosong / ada file migrasi di repo)**
+
+Jika Anda hanya ingin menerapkan migrasi yang sudah ada di folder `prisma/migrations`:
+
+```bash
+npx prisma migrate deploy
+```
+
+Untuk pengembangan (menghapus semua data, menjalankan migrasi ulang dan seed) gunakan:
+
+```bash
+npx prisma migrate reset --force
+```
+
+Catatan: `migrate reset` akan menghapus seluruh data pada database. Gunakan hanya di lingkungan development.
+
+**Menjalankan seeding (menambahkan akun tes)**
+
+Seed project sudah dikonfigurasi di `package.json` dan `prisma.config.ts`. Untuk menjalankan seed:
+
+```bash
+npx prisma db seed
+```
+
+Seed akan membuat dua akun default (jika belum ada):
+
+- Admin: `admin@gmail.com` (password default `admin1234` atau sesuai `SEED_ADMIN_PASSWORD`)
+- User: `user@gmail.com` (password default `user1234` atau sesuai `SEED_USER_PASSWORD`)
+
+Jika Anda ingin mengubah password akun seed, set `SEED_ADMIN_PASSWORD` dan/atau `SEED_USER_PASSWORD` di `.env` sebelum menjalankan `npx prisma db seed`.
+
+**Menjalankan aplikasi (development)**
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# lalu buka http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+**Build dan jalankan production (opsional)**
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run build
+npm start
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+**Ringkasan perintah umum**
 
-## Learn More
+- Install deps: `npm install`
+- Generate Prisma client: `npx prisma generate`
+- Terapkan migrasi (prod): `npx prisma migrate deploy`
+- Reset DB & seed (dev): `npx prisma migrate reset --force`
+- Jalankan seed: `npx prisma db seed`
+- Jalankan dev server: `npm run dev`
 
-To learn more about Next.js, take a look at the following resources:
+**Akun Tes (default)**
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Admin: email `admin@gmail.com` — password `admin1234` (atau isi `SEED_ADMIN_PASSWORD` di `.env`)
+- User: email `user@gmail.com` — password `user1234` (atau isi `SEED_USER_PASSWORD` di `.env`)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+**Masalah umum & solusi singkat**
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Error: `AUTH_SECRET is required` → pastikan `AUTH_SECRET` di `.env` dan restart server.
+- Error: koneksi database → periksa `DATABASE_URL`, pastikan Postgres berjalan dan port/creds benar.
+- Jika Prisma client tidak ditemukan → jalankan `npx prisma generate`.
