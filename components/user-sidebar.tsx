@@ -18,7 +18,7 @@ type NavBodyProps = {
 	onNavClick: () => void;
 };
 
-function NavBody({ pathname, userName, onNavClick }: NavBodyProps) {
+function NavBody({ pathname, onNavClick }: NavBodyProps) {
 	return (
 		<div className="flex h-full flex-col">
 			<nav className="flex-1 space-y-0.5 px-3 py-4">
@@ -42,9 +42,8 @@ function NavBody({ pathname, userName, onNavClick }: NavBodyProps) {
 			</nav>
 
 			<div className="border-t border-sidebar-border px-4 py-4">
-				<p className="mb-2 truncate text-xs font-medium text-sidebar-foreground">{userName}</p>
 				<form method="post" action="/api/auth/logout">
-					<Button type="submit" variant="outline" size="sm" className="w-full">
+					<Button type="submit" variant="logout" size="sm" className="w-full">
 						Logout
 					</Button>
 				</form>
@@ -71,7 +70,6 @@ export function UserSidebar({ userName }: Props) {
 						</div>
 						<span className="text-base font-semibold tracking-tight text-sidebar-foreground">E-Permit</span>
 					</div>
-					<p className="text-xs text-sidebar-foreground/70">Welcome, {userName}</p>
 				</div>
 				<NavBody pathname={pathname} userName={userName} onNavClick={() => {}} />
 			</aside>

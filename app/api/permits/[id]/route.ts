@@ -31,6 +31,22 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
 	return NextResponse.json({ data: updated });
 }
 
+export async function DELETE(_request: Request, context: { params: Promise<{ id: string }> }) {
+	const session = await getSession();
+	if (!session) {
+		return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+	}
+	if (session.role !== 'ADMIN') {
+		return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+	}
+
+	const { id } = await context.params;
+
+	await prisma.permit.delete({ where: { id } });
+
+	return NextResponse.json({ success: true });
+}
+
 export async function POST(request: Request, context: { params: Promise<{ id: string }> }) {
 	const session = await getSession();
 	if (!session) {
